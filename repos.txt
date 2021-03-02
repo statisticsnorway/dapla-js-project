@@ -1,0 +1,11 @@
+dapla-js-utilities
+dapla-workbench
+dapla-catalog-viewer
+dapla-lineage-viewer
+dapla-variable-search
+dapla-metadata-explorer
+dapla-metadata-webview
+dapla-user-access-admin
+dapla-react-reference-app
+cra-template-dapla-js-lib
+cra-template-dapla-react-app
