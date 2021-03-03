@@ -3,6 +3,25 @@
 # Dapla JS Project
 This project aggregates Dapla (Statistics Norway Data Platform) JavaScript sources into a common development context.
 
+## Requirements
+
+* Some scripts might require [jq](https://stedolan.github.io/jq/)
+
+## TODO
+
+* Create a script to auto-update dependencies in the repos
+    * yarn outdated and handle the response - done
+    * yarn upgrade and handle the response - done
+    * manual dependency updating - done
+    * yarn coverage and handle response - done
+    * yarn build OR yarn package and handle response -done
+    * if all ok
+      * create a new branch -done
+      * bump version number -done
+      * push to the new branch -done
+      * create a PR on the new branch
+    * cra-templates have to be handled differently
+
 ## References
 
 * [dapla-js-utilities](https://github.com/statisticsnorway/dapla-js-utilities)
