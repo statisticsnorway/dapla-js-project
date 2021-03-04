@@ -12,7 +12,7 @@ failureArray=()
 
 while read -r repo; do
   if [[ $repo != cra* ]]; then
-    cd "${repo}" || exit
+    cd "${repo}" || failureArray+=("$repo: does not exist?") && continue
     echo "Updating $repo..."
 
     shouldUpgrade=false
