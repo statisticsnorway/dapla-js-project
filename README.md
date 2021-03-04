@@ -1,6 +1,7 @@
 > This documentation is immature and work in progress!
 
 # Dapla JS Project
+
 This project aggregates Dapla (Statistics Norway Data Platform) JavaScript sources into a common development context.
 
 ## Requirements
@@ -16,11 +17,11 @@ This project aggregates Dapla (Statistics Norway Data Platform) JavaScript sourc
     * yarn coverage and handle response - done
     * yarn build OR yarn package and handle response -done
     * if all ok
-      * create a new branch -done
-      * bump version number -done
-      * push to the new branch -done
-      * create a PR on the new branch
-    * cra-templates have to be handled differently
+        * create a new branch -done
+        * bump version number -done
+        * push to the new branch -done
+        * create a PR on the new branch
+    * cra-templates have to be handled differently -done
 
 ## References
 
