@@ -56,9 +56,9 @@ while read -r repo; do
   if [[ $repo == cra* ]]; then
     yellow "Not installing because repo is a template"
   else
-    cd "${repo}" || echo "$repo: does not exist?" && continue
+    cd "${repo}" || continue
     echo "Installing..."
-    yarn install --silent
+    yarn install >/dev/null 2>&1 || red "Failed to install!"
     green "Finished installing"
     cd ..
   fi

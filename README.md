@@ -7,21 +7,20 @@ This project aggregates Dapla (Statistics Norway Data Platform) JavaScript sourc
 ## Requirements
 
 * Some scripts might require [jq](https://stedolan.github.io/jq/)
+* [Github-cli](https://cli.github.com/) needs to be installed and configured with access to the repos
+
+## Things of note
+
+* **dapla-js-utilities** and **dapla-workbench** have to be run separately
 
 ## TODO
 
-* Create a script to auto-update dependencies in the repos
-    * yarn outdated and handle the response - done
-    * yarn upgrade and handle the response - done
-    * manual dependency updating - done
-    * yarn coverage and handle response - done
-    * yarn build OR yarn package and handle response -done
-    * if all ok
-        * create a new branch -done
-        * bump version number -done
-        * push to the new branch -done
-        * create a PR on the new branch
-    * cra-templates have to be handled differently -done
+* Check if remote repo has dependencies-auto-update-[date] branch
+* Improve `cd` failure handling
+* Add default no answer to dependency major version upgrade question
+* Find solution for running the script on one repo and not all
+* Separate app vs lib handling (currently hardcoded)
+* Create a dependency tree of our internal js-projects
 
 ## References
 

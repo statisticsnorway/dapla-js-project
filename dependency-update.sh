@@ -1,18 +1,21 @@
 #!/usr/bin/env bash
 
 function green() {
-  printf '\e[32m%s\e[0m' "$1"
+  printf '\e[32m%s\e[0m\n' "$1"
 }
 
 function red() {
-  printf '\e[31m%s\e[0m' "$1"
+  printf '\e[31m%s\e[0m\n' "$1"
 }
 
+# TODO: run git-update.sh before deps update
+
 failureArray=()
+linksToPRArray=()
 
 while read -r repo; do
-  if [[ $repo != cra* ]]; then
-    cd "${repo}" || failureArray+=("$repo: does not exist?") && continue
+  if [[ $repo != cra* ]] && [[ $repo != dapla-js-utilities ]] && [[ $repo != dapla-workbench ]]; then
+    cd "${repo}" || continue
     echo "Updating $repo..."
 
     shouldUpgrade=false
@@ -33,9 +36,9 @@ while read -r repo; do
 
         if [[ $answer == "y" ]]; then
           if [[ $dependency == react-scripts ]]; then
-            yarn add --exact "$dependency"@"$latest"
+            yarn add --exact "$dependency"@"$latest" >/dev/null 2>&1
           else
-            yarn add "$dependency"@^"$latest"
+            yarn add "$dependency"@^"$latest" >/dev/null 2>&1
           fi
           shouldAttemptPR=true
         else
@@ -48,32 +51,35 @@ while read -r repo; do
     done
 
     if [ $shouldUpgrade == true ]; then
-      yarn upgrade
+      yarn upgrade >/dev/null 2>&1
     fi
 
     if [ $shouldAttemptPR == true ]; then
       echo "Attempting to run yarn coverage"
-      CI=true yarn coverage || failureArray+=("$repo: yarn coverage failed.")
+      CI=true yarn coverage >/dev/null 2>&1 || failureArray+=("$repo: yarn coverage failed.")
       echo "Attempting to run yarn build"
-      CI=true yarn build || failureArray+=("$repo: yarn build failed.")
+      CI=true yarn build >/dev/null 2>&1 || failureArray+=("$repo: yarn build failed.")
 
       if [ -d "lib/" ]; then
         echo "Attempting to run yarn package"
-        CI=true yarn package || failureArray+=("$repo: yarn package failed.")
+        CI=true yarn package >/dev/null 2>&1 || failureArray+=("$repo: yarn package failed.")
       fi
     fi
 
     if [ "$currentFailureArrayLength" == ${#failureArray[@]} ] && [ $shouldAttemptPR == true ]; then
-      echo "Creating branch and PR in git"
       yarn version --patch --no-commit-hooks --no-git-tag-version
-      git checkout -b dependencies-auto-update
-      git add --all
-      git commit -m "Update dependencies with dapla-js-project"
-      git push -u origin dependencies-auto-update
-      #      git request-pull origin/master dependencies-auto-update
-      #      TODO Create PR on github
-    else
-      echo "Should NOT create PR"
+
+      branchName=dependencies-auto-update-$(date +%F)
+
+      printf "Creating branch and PR in git... "
+      git checkout -b "$branchName" >/dev/null 2>&1
+      git add --all >/dev/null 2>&1
+      git commit -m "Update dependencies with dapla-js-project" >/dev/null 2>&1
+      git push -u origin "$branchName" >/dev/null 2>&1
+
+      urlToPR=$(gh pr create --fill --no-maintainer-edit --reviewer mmj-ssb,SjurSutterudSagen | tail -1)
+      linksToPRArray+=("$urlToPR")
+      green "OK"
     fi
 
     printf "\n"
@@ -83,8 +89,16 @@ while read -r repo; do
 done <repos.txt
 
 if [ ${#failureArray[@]} != 0 ]; then
-  echo "Something failed"
+  echo "List of failures during dependency updating:"
   for i in "${failureArray[@]}"; do
     red "$i"
+  done
+  printf "\n"
+fi
+
+if [ ${#linksToPRArray[@]} != 0 ]; then
+  echo "Links to the generated Pull Requests:"
+  for i in "${linksToPRArray[@]}"; do
+    echo "$i"
   done
 fi
