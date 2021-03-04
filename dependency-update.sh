@@ -12,12 +12,14 @@ failureArray=()
 
 while read -r repo; do
   if [[ $repo != cra* ]]; then
-    cd ${repo}
+    cd "${repo}" || failureArray+=("$repo: does not exist?") && continue
     echo "Updating $repo..."
+
     shouldUpgrade=false
     shouldAttemptPR=false
-    dependencies=$(yarn outdated --json | jq -s . | jq -c '.[1].data.body' | jq -c '.[]')
     currentFailureArrayLength=${#failureArray[@]}
+    dependencies=$(yarn outdated --json | jq -s . | jq -c '.[1].data.body' | jq -c '.[]')
+
     for i in $dependencies; do
       dependency=$(jq '.[0]' <<<"$i" | sed -e 's/^"//' -e 's/"$//')
       current=$(jq '.[1]' <<<"$i" | sed -e 's/^"//' -e 's/"$//')
@@ -26,28 +28,29 @@ while read -r repo; do
       latestMajor=${latest%%.*}
 
       if [[ $currentMajor != "$latestMajor" ]]; then
-        echo $(red "Major version update required for $dependency")
-        read -p "Do you wish to upgrade to latest version (y/n)? " answer </dev/tty
+        red "Major version update required for $dependency"
+        read -r -p "Do you wish to upgrade to latest version (y/n)? " answer </dev/tty
+
         if [[ $answer == "y" ]]; then
           if [[ $dependency == react-scripts ]]; then
             yarn add --exact "$dependency"@"$latest"
           else
             yarn add "$dependency"@^"$latest"
           fi
-
           shouldAttemptPR=true
         else
-          echo $(red "Not updating $dependency")
+          red "Not updating $dependency"
         fi
-
       else
         shouldUpgrade=true
         shouldAttemptPR=true
       fi
     done
+
     if [ $shouldUpgrade == true ]; then
       yarn upgrade
     fi
+
     if [ $shouldAttemptPR == true ]; then
       echo "Attempting to run yarn coverage"
       CI=true yarn coverage || failureArray+=("$repo: yarn coverage failed.")
@@ -67,8 +70,8 @@ while read -r repo; do
       git add --all
       git commit -m "Update dependencies with dapla-js-project"
       git push -u origin dependencies-auto-update
-#      git request-pull origin/master dependencies-auto-update
-      #TODO Create PR on github
+      #      git request-pull origin/master dependencies-auto-update
+      #      TODO Create PR on github
     else
       echo "Should NOT create PR"
     fi
@@ -81,8 +84,7 @@ done <repos.txt
 
 if [ ${#failureArray[@]} != 0 ]; then
   echo "Something failed"
-#  echo $(red "${failureArray[*]}")
   for i in "${failureArray[@]}"; do
-    echo $(red "$i")
+    red "$i"
   done
 fi
