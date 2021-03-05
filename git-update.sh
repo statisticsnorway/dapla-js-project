@@ -1,8 +1,14 @@
 #!/usr/bin/env bash
 
+function setGitMaster() {
+  output=$(git -C "${1}"/ checkout master 2>&1)
+  handle_response
+}
+
 function update() {
   printf 'Updating %s... ' "$1$2"
-  output=$(git -C "${1}"/ pull --rebase 2>&1)
+  setGitMaster "${1}"
+  output=$(git -C "${1}"/ pull --rebase origin 2>&1)
   handle_response
 }
 
@@ -34,7 +40,6 @@ function handle_response() {
       green "OK"
       ;;
     *)
-      green "OK"
       echo "$output"
       ;;
     esac
