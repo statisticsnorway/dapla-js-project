@@ -15,11 +15,10 @@ This project aggregates Dapla (Statistics Norway Data Platform) JavaScript sourc
 
 ## TODO
 
+* Handle running specific git-repo-update before dependency updating
 * Check if remote repo has dependencies-auto-update-[date] branch
+* Potentially open PR links in browser automatically
 * Improve `cd` failure handling
-* Add default no answer to dependency major version upgrade question
-* Find solution for running the script on one repo and not all
-* Separate app vs lib handling (currently hardcoded)
 * Create a dependency tree of our internal js-projects
 
 ## References
