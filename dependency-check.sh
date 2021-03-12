@@ -67,18 +67,18 @@ while read -r repo; do
       currentRepoMajorUpdates=0
       currentRepoMinorUpdates=0
       currentRepoPatchUpdates=0
-
       outdatedDependencies=$(yarn outdated --json)
 
       if [ "$outdatedDependencies" != '' ]; then
         dependencies=$(yarn outdated --json | jq -s . | jq -c '.[1].data.body' | jq -c '.[]')
 
         for i in $dependencies; do
+          updateType=''
+
           dependency=$(jq '.[0]' <<<"$i" | sed -e 's/^"//' -e 's/"$//')
           current=$(jq '.[1]' <<<"$i" | sed -e 's/^"//' -e 's/"$//')
           latest=$(jq '.[3]' <<<"$i" | sed -e 's/^"//' -e 's/"$//')
           depType=$(jq '.[4]' <<<"$i" | sed -e 's/^"//' -e 's/"$//')
-          updateType=''
 
           currentVersionString=("${current//./ }")
           latestVersionString=("${latest//./ }")
@@ -100,6 +100,7 @@ while read -r repo; do
 
                   if [ "$showDetailedResult" == 'y' ]; then
                     updateType='patch'
+
                     showDetailedDependencyOutput "$repo" "$current" "$latest" "$updateType" "$dependency"
                   fi
                 fi
@@ -110,6 +111,7 @@ while read -r repo; do
 
                 if [ "$showDetailedResult" == 'y' ]; then
                   updateType='minor'
+
                   showDetailedDependencyOutput "$repo" "$current" "$latest" "$updateType" "$dependency"
                 fi
               fi
@@ -120,6 +122,7 @@ while read -r repo; do
 
               if [ "$showDetailedResult" == 'y' ]; then
                 updateType='major'
+
                 showDetailedDependencyOutput "$repo" "$current" "$latest" "$updateType" "$dependency"
               fi
             fi
@@ -140,8 +143,10 @@ done <repos.txt
 
 if [ ${#failureArray[@]} != 0 ]; then
   printf '\n%bList of failures when checking dependencies:%b\n' "$RED" "$COLOR_END"
+
   for i in "${failureArray[@]}"; do
     printf '%b%s%b\n' "$RED" "$i" "$COLOR_END"
   done
+
   printf "\n"
 fi
