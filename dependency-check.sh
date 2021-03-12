@@ -80,7 +80,6 @@ while read -r repo; do
           depType=$(jq '.[4]' <<<"$i" | sed -e 's/^"//' -e 's/"$//')
           updateType=''
 
-          # TODO: improve splitting into array
           currentVersionString=("${current//./ }")
           latestVersionString=("${latest//./ }")
           currentVersionArray=($currentVersionString)
@@ -93,7 +92,6 @@ while read -r repo; do
           latestMinor=${latestVersionArray[1]}
           latestPatch=${latestVersionArray[2]}
 
-          # TODO: simplify?
           if [ "$currentMajor" == "$latestMajor" ]; then
             if [ "$currentMinor" == "$latestMinor" ]; then
               if [ "$currentPatch" != "$latestPatch" ]; then
