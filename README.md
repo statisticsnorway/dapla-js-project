@@ -20,6 +20,8 @@ This project aggregates Dapla (Statistics Norway Data Platform) JavaScript sourc
 * Potentially open PR links in browser automatically
 * Improve `cd` failure handling
 * Create a dependency tree of our internal js-projects
+* Dependency-check.sh
+    * Improve splitting dependency versions into arrays
 
 ## References
 
