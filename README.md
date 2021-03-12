@@ -22,6 +22,7 @@ This project aggregates Dapla (Statistics Norway Data Platform) JavaScript sourc
 * Create a dependency tree of our internal js-projects
 * Dependency-check.sh
     * Improve splitting dependency versions into arrays
+    * Improve if-statements
 
 ## References
 
