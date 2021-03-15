@@ -129,7 +129,7 @@ while read -r repo; do
           fi
         done
       else
-        printf '%b%s dependencies are up-to-date.\n' "$GREEN" "$repo"
+        printf '%b%s dependencies are up-to-date.%b\n' "$GREEN" "$repo" "$COLOR_END"
       fi
       if [ "$showDetailedResult" == 'n' ]; then
         showBasicDependencyOutput "$repo" "$currentRepoMajorUpdates" "$currentRepoMinorUpdates" "$currentRepoPatchUpdates"
