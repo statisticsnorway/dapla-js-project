@@ -34,6 +34,10 @@ function showBasicDependencyOutput() {
   printf '%s: %b %s Major %b%s Minor %b%s Patches\n' "$repo" "$stringSpacingFirst" "$currentRepoMajorUpdates" "$stringSpacingSecond" "$currentRepoMinorUpdates" "$stringSpacingThird" "$currentRepoPatchUpdates"
 }
 
+function showNoOutdatedDependenciesOutput() {
+  printf '%s: %b%b Dependencies are up-to-date.%b\n' "$repo" "$stringSpacingFirst" "$GREEN" "$COLOR_END"
+}
+
 function showCraTemplateOutput() {
   printf '%s: %b%b Nothing to check, this is a cra-template%b\n' "$repo" "$stringSpacingFirst" "$YELLOW" "$COLOR_END"
 }
@@ -46,15 +50,15 @@ read -r -p "Do you want a detailed result? (y/n) " showDetailedResult </dev/tty
 read -r -p "Should devDependencies also be checked? (y/n) " shouldCheckDevDeps </dev/tty
 
 if [ "$showDetailedResult" == 'y' ]; then
-  echo "Showing detailed information about the outdated dependencies"
+  echo "Showing detailed information about outdated dependencies"
 else
   echo "Showing basic information about outdated dependencies"
 fi
 
 if [ "$shouldCheckDevDeps" == 'y' ]; then
-  echo "Checking devDependencies also"
+  printf 'Checking devDependencies\n\n'
 else
-  echo "Skipping devDependencies"
+  printf 'Skipping devDependencies\n\n'
 fi
 
 while read -r repo; do
@@ -129,7 +133,7 @@ while read -r repo; do
           fi
         done
       else
-        printf '%b%s dependencies are up-to-date.%b\n' "$GREEN" "$repo" "$COLOR_END"
+        showNoOutdatedDependenciesOutput "$repo"
       fi
       if [ "$showDetailedResult" == 'n' ]; then
         showBasicDependencyOutput "$repo" "$currentRepoMajorUpdates" "$currentRepoMinorUpdates" "$currentRepoPatchUpdates"

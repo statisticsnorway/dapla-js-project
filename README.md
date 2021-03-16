@@ -23,6 +23,9 @@ This project aggregates Dapla (Statistics Norway Data Platform) JavaScript sourc
 * Dependency-check.sh
     * Improve splitting dependency versions into arrays
     * Improve if-statements
+    * Potentially improve output when skipping devDependencies
+        * Currently, might show both "0Major, 0Minor, 0Patch"(hidden devDep is outdated) or "Dependencies are up to
+          date"(All deps are up-to-date)
 
 ## References
 
