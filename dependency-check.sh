@@ -1,14 +1,27 @@
 #!/usr/bin/env bash
 
-stringSpacingFirst='\033[120D\033[31C'
-stringSpacingSecond='\033[120D\033[47C'
-stringSpacingThird='\033[120D\033[64C'
-stringSpacingFourth='\033[120D\033[89C'
+stringSpacingRepo='32'
+stringSpacingSemVerCurrent='8'
+stringSpacingSemVerLatest='11'
+stringSpacingSemVerTotal=$((stringSpacingSemVerCurrent + 4 + stringSpacingSemVerLatest)) #Number is the size of the arrow with spaces in the output
+stringSpacingType='10'
+stringSpacingBasicMajor='9'
+stringSpacingBasicMinor='9'
 
-RED='\e[31m'
-GREEN='\e[32m'
-YELLOW='\e[33m'
-COLOR_END='\e[0m'
+RED=$(printf '\e[31m')
+GREEN=$(printf '\e[32m')
+YELLOW=$(printf '\e[33m')
+CYAN=$(printf '\e[36m')
+COLOR_END=$(printf '\e[0m')
+
+shownDetailedHeader=false
+
+function showDetailedDependencyHeader() {
+  printf '%-*s' "$stringSpacingRepo" "Repository"
+  printf '%-*s' "$stringSpacingSemVerTotal" "Version"
+  printf '%-*s' "$stringSpacingType" "Type"
+  printf '%s\n' "Dependency"
+}
 
 function showDetailedDependencyOutput() {
   color=$GREEN
@@ -18,33 +31,50 @@ function showDetailedDependencyOutput() {
     color=$RED
     ;;
 
-  minor | patch)
+  minor)
     color=$YELLOW
+    ;;
+
+  patch)
+    color=$CYAN
     ;;
   esac
 
-  stringStart="$repo: $stringSpacingFirst Current: $current $stringSpacingSecond Latest: $latest $stringSpacingThird Type of update: "
-  coloredVersion="$color$updateType$COLOR_END"
-  stringEnd="$stringSpacingFourth Dependency: $dependency"
+  # Fix for printf counting the escaped characters in the color codes
+  colorLength=${#color}
+  colorEndLength=${#COLOR_END}
+  coloredUpdateTypeTotalLength=$((colorLength + colorEndLength + stringSpacingType))
 
-  printf '%b%b%b\n' "$stringStart" "$coloredVersion" "$stringEnd"
+  coloredUpdateType="$color$updateType$COLOR_END"
+
+  printf '%-*s' "$stringSpacingRepo" "$repo"
+  printf '%-*s -> %-*s' "$stringSpacingSemVerCurrent" "$current" "$stringSpacingSemVerLatest" "$latest"
+  printf '%-*s' "$coloredUpdateTypeTotalLength" "$coloredUpdateType"
+  printf '%s\n' "$dependency"
 }
 
 function showBasicDependencyOutput() {
-  printf '%s: %b %s Major %b%s Minor %b%s Patches\n' "$repo" "$stringSpacingFirst" "$currentRepoMajorUpdates" "$stringSpacingSecond" "$currentRepoMinorUpdates" "$stringSpacingThird" "$currentRepoPatchUpdates"
+  majorString=$currentRepoMajorUpdates' Major'
+  minorString=$currentRepoMinorUpdates' Minor'
+  patchString=$currentRepoPatchUpdates' Patches'
+
+  printf '%-*s' "$stringSpacingRepo" "$repo"
+  printf '%-*s' "$stringSpacingBasicMajor" "$majorString"
+  printf '%-*s' "$stringSpacingBasicMinor" "$minorString"
+  printf '%s\n' "$patchString"
 }
 
 function showNoOutdatedDependenciesOutput() {
-  printf '%s: %b%b Dependencies are up-to-date.%b\n' "$repo" "$stringSpacingFirst" "$GREEN" "$COLOR_END"
+  printf '%-*s%sDependencies are up-to-date.%s\n' "$stringSpacingRepo" "$repo" "$GREEN" "$COLOR_END"
 }
 
 function showCraTemplateOutput() {
-  printf '%s: %b%b Nothing to check, this is a cra-template%b\n' "$repo" "$stringSpacingFirst" "$YELLOW" "$COLOR_END"
+  printf '%-*s%bNothing to check, this is a cra-template%s\n' "$stringSpacingRepo" "$repo" "$YELLOW" "$COLOR_END"
 }
 
 failureArray=()
 
-printf "\nChecking for outdated dependencies in all repos in repos.txt\n\n"
+printf "\nChecking for outdated dependencies in all repositories in repos.txt\n\n"
 
 read -r -p "Do you want a detailed result? (y/n) " showDetailedResult </dev/tty
 read -r -p "Should devDependencies also be checked? (y/n) " shouldCheckDevDeps </dev/tty
@@ -75,6 +105,11 @@ while read -r repo; do
 
       if [ "$outdatedDependencies" != '' ]; then
         dependencies=$(yarn outdated --json | jq -s . | jq -c '.[1].data.body' | jq -c '.[]')
+
+        if [ "$showDetailedResult" == 'y' ] && [ "$shownDetailedHeader" == false ]; then
+          showDetailedDependencyHeader
+          shownDetailedHeader=true
+        fi
 
         for i in $dependencies; do
           updateType=''
