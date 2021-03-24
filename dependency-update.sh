@@ -47,77 +47,93 @@ read -r -p "Do you want to skip major versions (y/n)? " skipMajor </dev/tty
 
 for repo in "${repoChoice[@]}"; do
   cd "${repo}" || continue
-  echo "Updating $repo..."
 
-  shouldUpgrade=false
-  shouldAttemptPR=false
-  currentFailureArrayLength=${#failureArray[@]}
-  outdatedDependencies=$(yarn outdated --json)
+  branchName=dependencies-auto-update-$(date +%F)
 
-  if [ "$outdatedDependencies" != '' ]; then
-    dependencies=$(yarn outdated --json | jq -s . | jq -c '.[1].data.body' | jq -c '.[]')
+  #only checks for branch on remote, not local, should it?
+  git ls-remote --exit-code --heads origin "${branchName}" &>/dev/null 2>&1
 
-    for i in $dependencies; do
-      dependency=$(jq '.[0]' <<<"$i" | sed -e 's/^"//' -e 's/"$//')
-      current=$(jq '.[1]' <<<"$i" | sed -e 's/^"//' -e 's/"$//')
-      latest=$(jq '.[3]' <<<"$i" | sed -e 's/^"//' -e 's/"$//')
-      currentMajor=${current%%.*}
-      latestMajor=${latest%%.*}
-
-      if [[ $skipMajor == "n" ]] && [[ $currentMajor != "$latestMajor" ]]; then
-        red "Major version update required for $dependency"
-        read -r -p "Do you wish to upgrade to latest version (y/n)? " answer </dev/tty
-
-        if [[ $answer == "y" ]]; then
-          if [[ $dependency == react-scripts ]]; then
-            yarn add --exact "$dependency"@"$latest" >/dev/null 2>&1
-          else
-            yarn add "$dependency"@^"$latest" >/dev/null 2>&1
-          fi
-          shouldAttemptPR=true
-        else
-          red "Not updating $dependency"
-        fi
-      else
-        shouldUpgrade=true
-        shouldAttemptPR=true
-      fi
-    done
-  else
-    green "Nothing to update"
-  fi
-
-  if [ $shouldUpgrade == true ]; then
-    yarn upgrade >/dev/null 2>&1
-  fi
-
-  if [ $shouldAttemptPR == true ]; then
-    echo "Attempting to run yarn coverage"
-    CI=true yarn coverage >/dev/null 2>&1 || failureArray+=("$repo: yarn coverage failed.")
-    echo "Attempting to run yarn build"
-    CI=true yarn build >/dev/null 2>&1 || failureArray+=("$repo: yarn build failed.")
-
-    if [ -d "lib/" ]; then
-      echo "Attempting to run yarn package"
-      CI=true yarn package >/dev/null 2>&1 || failureArray+=("$repo: yarn package failed.")
-      libArray+=("$repo")
-    fi
-  fi
-
-  if [ "$currentFailureArrayLength" == ${#failureArray[@]} ] && [ $shouldAttemptPR == true ]; then
-    yarn version --patch --no-commit-hooks --no-git-tag-version
-
-    branchName=dependencies-auto-update-$(date +%F)
-
-    printf "Creating branch and PR in git... "
-    git checkout -b "$branchName" >/dev/null 2>&1
-    git add --all >/dev/null 2>&1
-    git commit -m "Update dependencies with dapla-js-project" >/dev/null 2>&1
-    git push -u origin "$branchName" >/dev/null 2>&1
-
-    urlToPR=$(gh pr create --fill --no-maintainer-edit --reviewer mmj-ssb,SjurSutterudSagen | tail -1)
-    linksToPRArray+=("$urlToPR")
+  printf "Checking for previous autocreated branch in remote repository (Does not check local)... "
+  echo "$?"
+  if [ "$?" == "2" ]; then
     green "OK"
+
+    echo "Updating $repo..."
+
+    shouldUpgrade=false
+    shouldAttemptPR=false
+    currentFailureArrayLength=${#failureArray[@]}
+    outdatedDependencies=$(yarn outdated --json)
+
+    if [ "$outdatedDependencies" != '' ]; then
+      dependencies=$(yarn outdated --json | jq -s . | jq -c '.[1].data.body' | jq -c '.[]')
+
+      for i in $dependencies; do
+        dependency=$(jq '.[0]' <<<"$i" | sed -e 's/^"//' -e 's/"$//')
+        current=$(jq '.[1]' <<<"$i" | sed -e 's/^"//' -e 's/"$//')
+        latest=$(jq '.[3]' <<<"$i" | sed -e 's/^"//' -e 's/"$//')
+        currentMajor=${current%%.*}
+        latestMajor=${latest%%.*}
+
+        if [[ $skipMajor == "n" ]] && [[ $currentMajor != "$latestMajor" ]]; then
+          red "Major version update required for $dependency"
+          read -r -p "Do you wish to upgrade to latest version (y/n)? " answer </dev/tty
+
+          if [[ $answer == "y" ]]; then
+            if [[ $dependency == react-scripts ]]; then
+              yarn add --exact "$dependency"@"$latest" >/dev/null 2>&1
+            else
+              yarn add "$dependency"@^"$latest" >/dev/null 2>&1
+            fi
+            shouldAttemptPR=true
+          else
+            red "Not updating $dependency"
+          fi
+        else
+          shouldUpgrade=true
+          shouldAttemptPR=true
+        fi
+      done
+    else
+      green "Nothing to update"
+    fi
+
+    if [ $shouldUpgrade == true ]; then
+      yarn upgrade >/dev/null 2>&1
+    fi
+
+    if [ $shouldAttemptPR == true ]; then
+      echo "Attempting to run yarn coverage"
+      CI=true yarn coverage >/dev/null 2>&1 || failureArray+=("$repo: yarn coverage failed.")
+      echo "Attempting to run yarn build"
+      CI=true yarn build >/dev/null 2>&1 || failureArray+=("$repo: yarn build failed.")
+
+      if [ -d "lib/" ]; then
+        echo "Attempting to run yarn package"
+        CI=true yarn package >/dev/null 2>&1 || failureArray+=("$repo: yarn package failed.")
+        libArray+=("$repo")
+      fi
+    fi
+
+    if [ "$currentFailureArrayLength" == ${#failureArray[@]} ] && [ $shouldAttemptPR == true ]; then
+
+  #    yarn version --patch --no-commit-hooks --no-git-tag-version
+  #
+  #    printf "Creating branch and PR in git... "
+  #    git checkout -b "$branchName" >/dev/null 2>&1
+  #    git add --all >/dev/null 2>&1
+  #    git commit -m "Update dependencies with dapla-js-project" >/dev/null 2>&1
+  #    git push -u origin "$branchName" >/dev/null 2>&1
+
+  #    urlToPR=$(gh pr create --fill --no-maintainer-edit --reviewer mmj-ssb,SjurSutterudSagen | tail -1)
+  #    linksToPRArray+=("$urlToPR")
+      green "OK"
+    fi
+
+  else
+    failureArray+=("$repo: Autocreated branch already exists - $branchName")
+    red "Failed"
+    continue
   fi
 
   printf "\n"
