@@ -50,13 +50,17 @@ for repo in "${repoChoice[@]}"; do
 
   branchName=dependencies-auto-update-$(date +%F)
 
-  #only checks for branch on remote, not local, should it?
   git ls-remote --exit-code --heads origin "${branchName}" &>/dev/null 2>&1
+  testVar=$?
 
-  printf "Checking for previous autocreated branch in remote repository (Does not check local)... "
-  echo "$?"
-  if [ "$?" == "2" ]; then
+  echo "Response from git ls-remote: $testVar"
+  printf "Checking for previous autocreated branch in remote repository (Does not check local)... \n"
+
+  if [ "$testVar" == 2 ]; then
     green "OK"
+
+    cd ..
+    continue #remove
 
     echo "Updating $repo..."
 
@@ -133,6 +137,8 @@ for repo in "${repoChoice[@]}"; do
   else
     failureArray+=("$repo: Autocreated branch already exists - $branchName")
     red "Failed"
+    echo "$?"
+    cd ..
     continue
   fi
 
