@@ -50,6 +50,7 @@ function handle_response() {
 }
 
 update "." "dapla-js-project"
+printf "\n"
 
 while read -r repo; do
   if [ -d "${repo}" ]; then
