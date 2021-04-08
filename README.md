@@ -30,10 +30,31 @@ This project aggregates Dapla (Statistics Norway Data Platform) JavaScript sourc
 
 ## TODO - All projects
 
-* Add Dapla logo
+1 Archive and deprecate the projects that are not needed anymore(this might affect other projects)
+   * lineage-viewer(probably)
+   * variable-search(probably)
+   * catalog-viewer(deprecated because of the new "ls" functions in jupyterhub)
+
+2 Add documentation link to SimpleFooter in dapla-js-utilities
+  
+3 Add Dapla logo (maybe workbench has logos, others only favicon)
+* Change from `Dataplatform` to `Data Platform`
 * Rename `master`-branch to `main`
-* Utilize release and tagging on GitHub (implement a third pipeline template for production tagging and only deploy to
+
+4 Utilize release and tagging on GitHub (implement a third pipeline template for production tagging and only deploy to
   production when there is a new release on GitHub)
+
+### Todo dependency-check.sh
+* Change output to: repo - dep - type - version
+* Change output headers to be bold
+* Change output to have a space between different repos
+
+### Todo dependency-update.sh
+* Add check/choice for direct vs peer dependencies
+  * green "No direct dependencies to update. Checking for peer dependencies"
+  * yarn upgrade >/dev/null 2>&1
+  * check git status for changes
+  * check for changes in yarn.lock, set shouldAttemptPR if changes exists
 
 ## References
 

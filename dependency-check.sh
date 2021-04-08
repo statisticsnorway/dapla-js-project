@@ -108,6 +108,7 @@ while read -r repo; do
 
         if [ "$showDetailedResult" == 'y' ] && [ "$shownDetailedHeader" == false ]; then
           showDetailedDependencyHeader
+
           shownDetailedHeader=true
         fi
 
