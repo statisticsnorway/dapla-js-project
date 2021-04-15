@@ -1,8 +1,6 @@
 dapla-js-utilities
 dapla-workbench
-dapla-catalog-viewer
-dapla-lineage-viewer
-dapla-variable-search
+dapla-migration-webclient
 dapla-metadata-explorer
 dapla-metadata-webview
 dapla-user-access-admin
