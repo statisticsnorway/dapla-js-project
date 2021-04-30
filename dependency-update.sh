@@ -23,20 +23,16 @@ function buildRepoArrayWithExceptions() {
 }
 
 PS3='Which repos do you want to upgrade? '
-options=("dapla-js-utilities" "All (except js-utilities and workbench)" "dapla-workbench")
+options=("dapla-js-utilities" "All (except js-utilities)")
 select opt in "${options[@]}"; do
   case $opt in
   "dapla-js-utilities")
     printf "Updating %s\n\n" "$opt"
     repoChoice+=("dapla-js-utilities")
     ;;
-  "All (except js-utilities and workbench)")
+  "All (except js-utilities)")
     printf "Updating %s\n\n" "$opt"
     buildRepoArrayWithExceptions
-    ;;
-  "dapla-workbench")
-    printf "Updating %s\n\n" "$opt"
-    repoChoice+=("dapla-workbench")
     ;;
   *) echo "Invalid option $REPLY" && exit ;;
   esac

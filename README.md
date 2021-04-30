@@ -11,8 +11,7 @@ This project aggregates Dapla (Statistics Norway Data Platform) JavaScript sourc
 
 ## Things of note
 
-* **dapla-js-utilities** has to be built and released first, since almost every other project uses it
-* **dapla-workbench** has to be built and released last, since it relies on many other projects as integrations
+* **dapla-js-utilities** has to be built **and** released first, since almost every other project uses it
 
 ## TODO
 
@@ -32,8 +31,7 @@ This project aggregates Dapla (Statistics Norway Data Platform) JavaScript sourc
 
 1 Add documentation link to SimpleFooter in dapla-js-utilities
   
-2 Add Dapla logo (maybe workbench has logos, others only favicon)
-* Change from `Dataplatform` to `Data Platform`
+2 Add Dapla logo
 * Rename `master`-branch to `main`
 
 3 Utilize release and tagging on GitHub (implement a third pipeline template for production tagging and only deploy to
@@ -53,7 +51,6 @@ This project aggregates Dapla (Statistics Norway Data Platform) JavaScript sourc
 
 ## References
 
-* [dapla-workbench](https://github.com/statisticsnorway/dapla-workbench)
 * [dapla-js-utilities](https://github.com/statisticsnorway/dapla-js-utilities)
 * [dapla-metadata-webview](https://github.com/statisticsnorway/dapla-metadata-webview)
 * [dapla-metadata-explorer](https://github.com/statisticsnorway/dapla-metadata-explorer)
