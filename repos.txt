@@ -1,5 +1,4 @@
 dapla-js-utilities
-dapla-workbench
 dapla-migration-webclient
 dapla-metadata-explorer
 dapla-metadata-webview
